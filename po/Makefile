@@ -19,27 +19,11 @@ VERSION = @VERSION@
 
 SHELL = /bin/sh
 
-
 srcdir = .
 top_srcdir = ..
-VPATH = .
-
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-datadir = @datadir@
-DATADIR = @DATADIR@
-LOCALEDIR = @LOCALEDIR@
-localedir = @FULLLOCALEDIR@
-gettextsrcdir = $(datadir)/gettext/po
-
-INSTALL = @INSTALL@
-INSTALL_DATA = /usr/bin/install -m644
-MKINSTALLDIRS = @MKINSTALLDIRS@
-mkinstalldirs = $(SHELL) $(MKINSTALLDIRS)
 
 GMSGFMT = msgfmt
 MSGFMT = msgfmt
-XGETTEXT = true
 WMLXGETTEXT := $(top_srcdir)/utils/wmlxgettext
 MSGMERGE = msgmerge
 MSGMERGE_UPDATE = msgmerge --update
@@ -53,10 +37,8 @@ UPDATEPOFILES = af.po-update ang.po-update ang@latin.po-update ar.po-update bg.p
 DUMMYPOFILES = af.nop ang.nop ang@latin.nop ar.nop bg.nop ca.nop ca_ES@valencia.nop cs.nop da.nop de.nop el.nop en_GB.nop en@shaw.nop es.nop eo.nop et.nop eu.nop fi.nop fr.nop fur_IT.nop ga.nop gl.nop he.nop hr.nop hu.nop id.nop is.nop it.nop ja.nop ko.nop la.nop lt.nop lv.nop mk.nop mr.nop nl.nop nb_NO.nop pl.nop pt.nop pt_BR.nop racv.nop ro.nop ru.nop sk.nop sl.nop sr.nop sr@ijekavian.nop sr@ijekavianlatin.nop sr@latin.nop sv.nop tl.nop tr.nop uk.nop vi.nop zh_CN.nop zh_TW.nop
 DISTFILES.common = Makefile.in.in remove-potcdate.sin \
 $(DISTFILES.common.extra1) $(DISTFILES.common.extra2) $(DISTFILES.common.extra3)
-DISTFILES = $(DISTFILES.common) Makevars POTFILES.in $(DOMAIN).pot \
+DISTFILES = $(DISTFILES.common) Makevars $(DOMAIN).pot \
 	$(POFILES) $(DISTFILES.extra1) $(DISTFILES.extra2) $(DISTFILES.extra3)
-
-POTFILES = \
 
 CATALOGS = af.gmo ang.gmo ang@latin.gmo ar.gmo bg.gmo ca.gmo ca_ES@valencia.gmo cs.gmo da.gmo de.gmo el.gmo en_GB.gmo en@shaw.gmo es.gmo eo.gmo et.gmo eu.gmo fi.gmo fr.gmo fur_IT.gmo ga.gmo gl.gmo he.gmo hr.gmo hu.gmo id.gmo is.gmo it.gmo ja.gmo ko.gmo la.gmo lt.gmo lv.gmo mk.gmo mr.gmo nl.gmo nb_NO.gmo pl.gmo pt.gmo pt_BR.gmo racv.gmo ro.gmo ru.gmo sk.gmo sl.gmo sr.gmo sr@ijekavian.gmo sr@ijekavianlatin.gmo sr@latin.gmo sv.gmo tl.gmo tr.gmo uk.gmo vi.gmo zh_CN.gmo zh_TW.gmo
 
@@ -76,10 +58,8 @@ top_builddir = ..
 # package.  (Note that the msgstr strings, extracted from the package's
 # sources, belong to the copyright holder of the package.)  Translators are
 # expected to transfer the copyright for their translations to this person
-# or entity, or to disclaim their copyright.  The empty string stands for
-# the public domain; in this case the translators are expected to disclaim
-# their copyright.
-COPYRIGHT_HOLDER = Wesnoth development team
+# or entity, or to disclaim their copyright.
+COPYRIGHT_HOLDER =
 
 # This is the email address or URL to which the translators shall report
 # bugs in the untranslated strings:
@@ -95,10 +75,10 @@ COPYRIGHT_HOLDER = Wesnoth development team
 # It can be your email address, or a mailing list address where translators
 # can write to without being subscribed, or the URL of a web page through
 # which the translators can contact you.
-MSGID_BUGS_ADDRESS =http://bugs.wesnoth.org/
+MSGID_BUGS_ADDRESS =
 
 .SUFFIXES:
-.SUFFIXES: .po .gmo .mo .sed .sin .nop .po-create .po-update
+.SUFFIXES: .po .gmo .mo .sed .nop .po-create .po-update
 
 all:
 	@echo "Run make in the directory below instead"
@@ -123,29 +103,15 @@ all:
 
 # This target rebuilds $(DOMAIN).pot; it is an expensive operation.
 # Note that $(DOMAIN).pot is not touched if it doesn't need to be changed.
-$(DOMAIN).pot-update: $(POTFILES) $(srcdir)/POTFILES.in remove-potcdate.sed
-	$(XGETTEXT) --default-domain=$(DOMAIN) --directory=$(top_srcdir) \
-	  --add-comments=TRANSLATORS: $(XGETTEXT_OPTIONS) \
-	  --files-from=$(srcdir)/POTFILES.in \
-	  --copyright-holder='$(COPYRIGHT_HOLDER)' \
-	  --msgid-bugs-address='$(MSGID_BUGS_ADDRESS)' \
-	  --keyword=_ --keyword=N_ \
-	  --output=$(DOMAIN).cpp.po
-	if test -f $(DOMAIN).cpp.po ; then \
-	  sed s/charset=CHARSET/charset=UTF-8/ $(DOMAIN).cpp.po > $(DOMAIN).cpp1.po ;\
-	fi
+$(DOMAIN).pot-update:
 	if test -r $(srcdir)/FINDCFG ;\
 	then ${WMLXGETTEXT} --directory=$(top_srcdir) --domain=$(DOMAIN) \
 	  `cd $(top_srcdir) && sh $(subdir)/FINDCFG` > $(DOMAIN).wml.po ;\
 	fi
-	if test -f $(DOMAIN).wml.po -a -f $(DOMAIN).cpp1.po ; then \
-	  msgcat --sort-by-file $(DOMAIN).cpp1.po $(DOMAIN).wml.po -o $(DOMAIN).po ;\
-	elif test -f $(DOMAIN).wml.po ; then \
+	if test -f $(DOMAIN).wml.po ; then \
 	  mv $(DOMAIN).wml.po $(DOMAIN).po ;\
-	else \
-	  mv $(DOMAIN).cpp1.po $(DOMAIN).po ;\
 	fi
-	rm -f $(DOMAIN).cpp.po $(DOMAIN).cpp1.po $(DOMAIN).wml.po
+	rm -f $(DOMAIN).wml.po
 	test ! -f $(DOMAIN).po || { \
 	  if test -f $(srcdir)/$(DOMAIN).pot; then \
 	    sed -f remove-potcdate.sed < $(srcdir)/$(DOMAIN).pot > $(DOMAIN).1po && \
@@ -159,6 +125,7 @@ $(DOMAIN).pot-update: $(POTFILES) $(srcdir)/POTFILES.in remove-potcdate.sed
 	  else \
 	    mv $(DOMAIN).po $(srcdir)/$(DOMAIN).pot; \
 	  fi; \
+	  sed -i 's/http:\/\/bugs.wesnoth.org\//$(MSGID_BUGS_ADDRESS)/g' $(srcdir)/$(DOMAIN).pot; \
 	}
 
 # This rule has no dependencies: we don't need to update $(DOMAIN).pot at
@@ -182,17 +149,15 @@ $(POFILES): $(srcdir)/$(DOMAIN).pot
 info dvi ps pdf html tags TAGS ctags CTAGS ID:
 
 mostlyclean:
-	rm -f remove-potcdate.sed
 	rm -f core core.* $(DOMAIN).po $(DOMAIN).1po $(DOMAIN).2po *.new.po
-	rm -fr *.o
 	rm -f *.gmo
 	rm -f *.po~
-	rm -f *.wml.po *.cpp.po *.cpp1.po
+	rm -f *.wml.po
 
 clean: mostlyclean
 
 distclean: clean
-	rm -f Makefile Makefile.in POTFILES *.mo
+	rm -f Makefile Makefile.in *.mo
 
 update-po:
 	$(MAKE) $(DOMAIN).pot-update
